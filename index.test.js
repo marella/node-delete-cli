@@ -27,10 +27,8 @@ it('should delete files', async () => {
   await exists('foo/files/2.txt', false);
 
   await exists('foo/files/empty', true);
-  await exists('foo/files/*', true);
   await exists('foo/files/-', true);
   await exists('foo/files/3.txt', true);
-  await exists('foo/files/*.txt', true);
   await exists('foo/files/-.txt', true);
 });
 
@@ -39,12 +37,10 @@ it('should delete directories', async () => {
   await del(['foo/dirs/empty']);
   await exists('foo/dirs/empty', false);
 
-  await exists('foo/dirs/*', true);
   await exists('foo/dirs/-', true);
   await exists('foo/dirs/1.txt', true);
   await exists('foo/dirs/2.txt', true);
   await exists('foo/dirs/3.txt', true);
-  await exists('foo/dirs/*.txt', true);
   await exists('foo/dirs/-.txt', true);
 
   await setupDir('foo/dirs');
@@ -60,28 +56,9 @@ it('should not throw error if path does not exist', async () => {
   await exists('foo/silent/2.txt', false);
 
   await exists('foo/silent/empty', true);
-  await exists('foo/silent/*', true);
   await exists('foo/silent/-', true);
   await exists('foo/silent/3.txt', true);
-  await exists('foo/silent/*.txt', true);
   await exists('foo/silent/-.txt', true);
-});
-
-it('should delete files and directories having *', async () => {
-  await setupDir('foo/star');
-  await del(['foo/star/*']);
-  await exists('foo/star/*', false);
-
-  await exists('foo/star/*.txt', true);
-  await del(['foo/star/*.txt']);
-  await exists('foo/star/*.txt', false);
-
-  await exists('foo/star/empty', true);
-  await exists('foo/star/-', true);
-  await exists('foo/star/1.txt', true);
-  await exists('foo/star/2.txt', true);
-  await exists('foo/star/3.txt', true);
-  await exists('foo/star/-.txt', true);
 });
 
 it('should delete files and directories starting with -', async () => {
@@ -94,11 +71,9 @@ it('should delete files and directories starting with -', async () => {
   await exists('foo/dash/-.txt', false);
 
   await exists('foo/dash/empty', true);
-  await exists('foo/dash/*', true);
   await exists('foo/dash/1.txt', true);
   await exists('foo/dash/2.txt', true);
   await exists('foo/dash/3.txt', true);
-  await exists('foo/dash/*.txt', true);
 });
 
 it('should delete read-only files and directories', async () => {
@@ -111,10 +86,8 @@ it('should delete read-only files and directories', async () => {
   await exists('foo/read/1.txt', false);
   await exists('foo/read/2.txt', false);
 
-  await fs.chmod('foo/read/*', 0o400);
   await fs.chmod('foo/read/-', 0o400);
   await fs.chmod('foo/read/3.txt', 0o400);
-  await fs.chmod('foo/read/*.txt', 0o400);
   await fs.chmod('foo/read/-.txt', 0o400);
   await del(['foo/read']);
   await exists('foo/read', false);
@@ -124,12 +97,10 @@ it('should delete read-only files and directories', async () => {
 
 const setupDir = async (p) => {
   await mkdir(p + '/empty');
-  await mkdir(p + '/*');
   await mkdir(p + '/-');
   await touch(p + '/1.txt');
   await touch(p + '/2.txt');
   await touch(p + '/3.txt');
-  await touch(p + '/*.txt');
   await touch(p + '/-.txt');
 };
 
