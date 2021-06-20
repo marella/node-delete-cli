@@ -12,15 +12,18 @@ const del = async (path) => {
   try {
     await rmrf(path);
   } catch (e) {
-    // Windows throws EPERM for write-protected directories.
-    if (e.code !== 'EPERM') {
+    const isSub = e.path !== path; // Error could be due to a subpath.
+    if (e.code === 'EPERM') {
+      // Windows throws EPERM for write-protected directories.
+      await fixPermissions(e.path); // Fix permissions of the directory causing error.
+    } else if (e.code === 'EACCES' && isSub) {
+      // Accessing subpaths of write-protected directories throws EACCES.
+      await fixPermissions(path); // Fix permissions of the parent directory.
+    } else {
       throw e;
     }
-    // Fix permissions of the directory causing error. It could be a subdirectory.
-    await fixPermissions(e.path);
-    if (e.path !== path) {
-      // `e.path` will be a subdirectory of `path`.
-      await del(e.path); // Try deleting subdirectory first.
+    if (isSub) {
+      await del(e.path); // Try deleting subpath first.
       await del(path); // Try deleting parent directory again.
     } else {
       await rmrf(path); // Avoid endless recursion.
@@ -32,7 +35,7 @@ const rmrf = async (path) => fs.rm(path, { recursive: true, force: true });
 
 const fixPermissions = async (path) => {
   try {
-    await fs.chmod(path, 0o600);
+    await fs.chmod(path, 0o700);
   } catch (e) {
     if (e.code !== 'ENOENT') {
       throw e;
