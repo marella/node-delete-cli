@@ -92,8 +92,6 @@ it('should delete write-protected files and directories', async () => {
   await exists('foo/perm/-.txt', true);
 });
 
-// TODO: handle non-empty directories with 0o400 permissions
-
 it('should delete directories having write-protected files and directories', async () => {
   await setupDir('foo/permsub');
   await fs.chmod('foo/permsub/empty', 0o400);
@@ -104,6 +102,13 @@ it('should delete directories having write-protected files and directories', asy
   await fs.chmod('foo/permsub/-.txt', 0o400);
   await del(['foo/permsub']);
   await exists('foo/permsub', false);
+});
+
+it('should delete write-protected directories having files and directories', async () => {
+  await setupDir('foo/permparent');
+  await fs.chmod('foo/permparent', 0o400);
+  await del(['foo/permparent']);
+  await exists('foo/permparent', false);
 });
 
 const setupDir = async (p) => {
