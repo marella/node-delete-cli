@@ -76,21 +76,23 @@ it('should delete files and directories starting with -', async () => {
   await exists('foo/dash/3.txt', true);
 });
 
-it('should delete read-only files and directories', async () => {
-  await setupDir('foo/read');
-  await fs.chmod('foo/read/empty', 0o400);
-  await fs.chmod('foo/read/1.txt', 0o400);
-  await fs.chmod('foo/read/2.txt', 0o400);
-  await del(['foo/read/1.txt', 'foo/read/2.txt', 'foo/read/empty']);
-  await exists('foo/read/empty', false);
-  await exists('foo/read/1.txt', false);
-  await exists('foo/read/2.txt', false);
+it('should delete write-protected files and directories', async () => {
+  await setupDir('foo/perm');
+  await fs.chmod('foo/perm/1.txt', 0o400);
+  await del(['foo/perm/1.txt']);
+  await exists('foo/perm/1.txt', false);
 
-  await fs.chmod('foo/read/-', 0o400);
-  await fs.chmod('foo/read/3.txt', 0o400);
-  await fs.chmod('foo/read/-.txt', 0o400);
-  await del(['foo/read']);
-  await exists('foo/read', false);
+  await fs.chmod('foo/perm/empty', 0o400);
+  await fs.chmod('foo/perm/2.txt', 0o400);
+  await del(['foo/perm/2.txt', 'foo/perm/empty']);
+  await exists('foo/perm/empty', false);
+  await exists('foo/perm/2.txt', false);
+
+  await fs.chmod('foo/perm/-', 0o400);
+  await fs.chmod('foo/perm/3.txt', 0o400);
+  await fs.chmod('foo/perm/-.txt', 0o400);
+  await del(['foo/perm']);
+  await exists('foo/perm', false);
 
   // TODO: handle non-empty directories with 0o400 permissions
 });
