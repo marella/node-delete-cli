@@ -16,10 +16,14 @@ const del = async (path) => {
     if (e.code !== 'EPERM') {
       throw e;
     }
+    // Fix permissions of the directory causing error. It could be a subdirectory.
     await fixPermissions(e.path);
-    // Error might be from subdirectories.
-    if (path !== e.path) {
-      await del(path);
+    if (e.path !== path) {
+      // `e.path` will be a subdirectory of `path`.
+      await del(e.path); // Try deleting subdirectory first.
+      await del(path); // Try deleting parent directory again.
+    } else {
+      await rmrf(path); // Avoid endless recursion.
     }
   }
 };
@@ -29,7 +33,6 @@ const rmrf = async (path) => fs.rm(path, { recursive: true, force: true });
 const fixPermissions = async (path) => {
   try {
     await fs.chmod(path, 0o600);
-    await rmrf(path);
   } catch (e) {
     if (e.code !== 'ENOENT') {
       throw e;
