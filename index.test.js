@@ -83,18 +83,27 @@ it('should delete write-protected files and directories', async () => {
   await exists('foo/perm/1.txt', false);
 
   await fs.chmod('foo/perm/empty', 0o400);
-  await fs.chmod('foo/perm/2.txt', 0o400);
-  await del(['foo/perm/2.txt', 'foo/perm/empty']);
+  await del(['foo/perm/empty']);
   await exists('foo/perm/empty', false);
-  await exists('foo/perm/2.txt', false);
 
-  await fs.chmod('foo/perm/-', 0o400);
-  await fs.chmod('foo/perm/3.txt', 0o400);
-  await fs.chmod('foo/perm/-.txt', 0o400);
-  await del(['foo/perm']);
-  await exists('foo/perm', false);
+  await exists('foo/perm/-', true);
+  await exists('foo/perm/2.txt', true);
+  await exists('foo/perm/3.txt', true);
+  await exists('foo/perm/-.txt', true);
+});
 
-  // TODO: handle non-empty directories with 0o400 permissions
+// TODO: handle non-empty directories with 0o400 permissions
+
+it('should delete directories having write-protected files and directories', async () => {
+  await setupDir('foo/permsub');
+  await fs.chmod('foo/permsub/empty', 0o400);
+  await fs.chmod('foo/permsub/-', 0o400);
+  await fs.chmod('foo/permsub/1.txt', 0o400);
+  await fs.chmod('foo/permsub/2.txt', 0o400);
+  await fs.chmod('foo/permsub/3.txt', 0o400);
+  await fs.chmod('foo/permsub/-.txt', 0o400);
+  await del(['foo/permsub']);
+  await exists('foo/permsub', false);
 });
 
 const setupDir = async (p) => {
