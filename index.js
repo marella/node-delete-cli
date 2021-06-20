@@ -28,7 +28,7 @@ const rmrf = async (path) => fs.rm(path, { recursive: true, force: true });
 
 const fixPermissions = async (path) => {
   try {
-    await fs.chmod(path, 0o700);
+    await fs.chmod(path, 0o600);
     await rmrf(path);
   } catch (e) {
     if (e.code !== 'ENOENT') {
