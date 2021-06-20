@@ -1,6 +1,6 @@
 {
   "name": "delete-cli",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A command to delete files and directories like `rm -rf`.",
   "bin": {
     "delete": "index.js",
