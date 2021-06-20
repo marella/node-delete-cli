@@ -111,6 +111,19 @@ it('should delete write-protected directories having files and directories', asy
   await exists('foo/permparent', false);
 });
 
+it('should delete write-protected directories having write-protected files and directories', async () => {
+  await setupDir('foo/permparentsub');
+  await fs.chmod('foo/permparentsub/empty', 0o400);
+  await fs.chmod('foo/permparentsub/-', 0o400);
+  await fs.chmod('foo/permparentsub/1.txt', 0o400);
+  await fs.chmod('foo/permparentsub/2.txt', 0o400);
+  await fs.chmod('foo/permparentsub/3.txt', 0o400);
+  await fs.chmod('foo/permparentsub/-.txt', 0o400);
+  await fs.chmod('foo/permparentsub', 0o400);
+  await del(['foo/permparentsub']);
+  await exists('foo/permparentsub', false);
+});
+
 const setupDir = async (p) => {
   await mkdir(p + '/empty');
   await mkdir(p + '/-');
