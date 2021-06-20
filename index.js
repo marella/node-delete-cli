@@ -53,7 +53,12 @@ const cli = async (paths) => {
     console.error(help);
     process.exit(1);
   }
-  await delAll(paths);
+  try {
+    await delAll(paths);
+  } catch (e) {
+    console.error(e.message);
+    process.exit(1);
+  }
 };
 
 cli(process.argv.slice(2));
