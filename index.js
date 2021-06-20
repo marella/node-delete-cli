@@ -1,6 +1,12 @@
 #!/usr/bin/env node
 
 import * as fs from 'node:fs/promises';
+import path from 'node:path';
+
+const delAll = async (paths) => {
+  paths = paths.map((p) => path.resolve(p));
+  await Promise.all(paths.map(del));
+};
 
 const del = async (path) => {
   try {
@@ -10,8 +16,11 @@ const del = async (path) => {
     if (e.code !== 'EPERM') {
       throw e;
     }
-    await fixPermissions(path);
-    await rmrf(path);
+    await fixPermissions(e.path);
+    // Error might be from subdirectories.
+    if (path !== e.path) {
+      await del(path);
+    }
   }
 };
 
@@ -20,14 +29,13 @@ const rmrf = async (path) => fs.rm(path, { recursive: true, force: true });
 const fixPermissions = async (path) => {
   try {
     await fs.chmod(path, 0o700);
+    await rmrf(path);
   } catch (e) {
     if (e.code !== 'ENOENT') {
       throw e;
     }
   }
 };
-
-const delAll = async (paths) => Promise.all(paths.map(del));
 
 const help = `
 Usage
