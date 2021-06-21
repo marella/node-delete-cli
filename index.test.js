@@ -77,12 +77,10 @@ it('should delete files and directories starting with -', async () => {
 });
 
 it('should delete write-protected files and directories', async () => {
-  await setupDir('foo/perm');
-  await fs.chmod('foo/perm/1.txt', 0o400);
+  await setupDir('foo/perm', 0o400);
   await del(['foo/perm/1.txt']);
   await exists('foo/perm/1.txt', false);
 
-  await fs.chmod('foo/perm/empty', 0o400);
   await del(['foo/perm/empty']);
   await exists('foo/perm/empty', false);
 
@@ -93,13 +91,7 @@ it('should delete write-protected files and directories', async () => {
 });
 
 it('should delete directories having write-protected files and directories', async () => {
-  await setupDir('foo/permsub');
-  await fs.chmod('foo/permsub/empty', 0o400);
-  await fs.chmod('foo/permsub/-', 0o400);
-  await fs.chmod('foo/permsub/1.txt', 0o400);
-  await fs.chmod('foo/permsub/2.txt', 0o400);
-  await fs.chmod('foo/permsub/3.txt', 0o400);
-  await fs.chmod('foo/permsub/-.txt', 0o400);
+  await setupDir('foo/permsub', 0o400);
   await del(['foo/permsub']);
   await exists('foo/permsub', false);
 });
@@ -112,34 +104,34 @@ it('should delete write-protected directories having files and directories', asy
 });
 
 it('should delete write-protected directories having write-protected files and directories', async () => {
-  await setupDir('foo/permparentsub');
-  await fs.chmod('foo/permparentsub/empty', 0o400);
-  await fs.chmod('foo/permparentsub/-', 0o400);
-  await fs.chmod('foo/permparentsub/1.txt', 0o400);
-  await fs.chmod('foo/permparentsub/2.txt', 0o400);
-  await fs.chmod('foo/permparentsub/3.txt', 0o400);
-  await fs.chmod('foo/permparentsub/-.txt', 0o400);
+  await setupDir('foo/permparentsub', 0o400);
   await fs.chmod('foo/permparentsub', 0o400);
   await del(['foo/permparentsub']);
   await exists('foo/permparentsub', false);
 });
 
-const setupDir = async (p) => {
-  await mkdir(p + '/empty');
-  await mkdir(p + '/-');
-  await touch(p + '/1.txt');
-  await touch(p + '/2.txt');
-  await touch(p + '/3.txt');
-  await touch(p + '/-.txt');
+const setupDir = async (p, mode) => {
+  await mkdir(p + '/empty', mode);
+  await mkdir(p + '/-', mode);
+  await touch(p + '/1.txt', mode);
+  await touch(p + '/2.txt', mode);
+  await touch(p + '/3.txt', mode);
+  await touch(p + '/-.txt', mode);
 };
 
-const mkdir = async (p) => {
+const mkdir = async (p, mode) => {
   await fs.ensureDir(p);
+  if (mode) {
+    await fs.chmod(p, mode);
+  }
   await exists(p, true);
 };
 
-const touch = async (p) => {
+const touch = async (p, mode) => {
   await fs.ensureFile(p);
+  if (mode) {
+    await fs.chmod(p, mode);
+  }
   await exists(p, true);
 };
 
