@@ -92,13 +92,14 @@ it('should delete write-protected files and directories', async () => {
   await exists('foo/perm/-.txt', true);
 });
 
-it('should delete directories having write-protected files and directories', async () => {
+it('should delete normal directories having write-protected files and directories', async () => {
   await setupDir('foo/permsub', 0o400);
+  await fs.chmod('foo/permsub', 0o700);
   await del(['foo/permsub']);
   await exists('foo/permsub', false);
 });
 
-it('should delete write-protected directories having files and directories', async () => {
+it('should delete write-protected directories having normal files and directories', async () => {
   await setupDir('foo/permparent');
   await fs.chmod('foo/permparent', 0o400);
   await del(['foo/permparent']);
@@ -107,7 +108,6 @@ it('should delete write-protected directories having files and directories', asy
 
 it('should delete write-protected directories having write-protected files and directories', async () => {
   await setupDir('foo/permparentsub', 0o400);
-  await fs.chmod('foo/permparentsub', 0o400);
   await del(['foo/permparentsub']);
   await exists('foo/permparentsub', false);
 });
@@ -119,6 +119,9 @@ const setupDir = async (p, mode) => {
   await touch(p + '/2.txt', mode);
   await touch(p + '/3.txt', mode);
   await touch(p + '/-.txt', mode);
+  if (mode) {
+    await fs.chmod(p, mode);
+  }
 };
 
 const mkdir = async (p, mode) => {
