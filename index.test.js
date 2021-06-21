@@ -77,10 +77,12 @@ it('should delete files and directories starting with -', async () => {
 });
 
 it('should delete write-protected files and directories', async () => {
-  await setupDir('foo/perm', 0o400);
+  await setupDir('foo/perm');
+  await fs.chmod('foo/perm/1.txt', 0o400);
   await del(['foo/perm/1.txt']);
   await exists('foo/perm/1.txt', false);
 
+  await fs.chmod('foo/perm/empty', 0o400);
   await del(['foo/perm/empty']);
   await exists('foo/perm/empty', false);
 
