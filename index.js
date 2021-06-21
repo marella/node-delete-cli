@@ -2,6 +2,7 @@
 
 import * as fs from 'node:fs/promises';
 import { resolve, dirname } from 'node:path';
+import isPathInside from 'is-path-inside';
 
 const delAll = async (paths) => {
   paths = paths.map((p) => resolve(p));
@@ -12,7 +13,11 @@ const del = async (path) => {
   try {
     await rmrf(path);
   } catch (e) {
-    const isSub = e.path !== path; // Error could be due to a subpath.
+    const isSub = isPathInside(e.path, path); // Error could be due to a subpath.
+    if (e.path !== path && !isSub) {
+      // Uknown case. `e.path` should be either current path or subpath.
+      throw e;
+    }
     if (e.code === 'EPERM') {
       // Windows throws EPERM for write-protected directories.
       await fixPermissions(e.path); // Fix permissions of the directory causing error.

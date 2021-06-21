@@ -15,6 +15,9 @@
     "prepublishOnly": "npm test",
     "preversion": "npm test"
   },
+  "dependencies": {
+    "is-path-inside": "^4.0.0"
+  },
   "devDependencies": {
     "execa": "^5.1.1",
     "fs-extra": "^10.0.0",
