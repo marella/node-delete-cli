@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 import * as fs from 'node:fs/promises';
-import path from 'node:path';
+import { resolve, dirname } from 'node:path';
 
 const delAll = async (paths) => {
-  paths = paths.map((p) => path.resolve(p));
+  paths = paths.map((p) => resolve(p));
   await Promise.all(paths.map(del));
 };
 
@@ -18,7 +18,8 @@ const del = async (path) => {
       await fixPermissions(e.path); // Fix permissions of the directory causing error.
     } else if (e.code === 'EACCES' && isSub) {
       // Accessing subpaths of write-protected directories throws EACCES.
-      await fixPermissions(path); // Fix permissions of the parent directory.
+      const parent = dirname(e.path);
+      await fixPermissions(parent); // Fix permissions of the immediate parent directory.
     } else {
       throw e;
     }
