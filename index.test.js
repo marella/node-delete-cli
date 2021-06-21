@@ -112,6 +112,18 @@ it('should delete write-protected directories having write-protected files and d
   await exists('foo/permparentsub', false);
 });
 
+it('should delete deeply nested write-protected files and directories', async () => {
+  await setupDir('foo/permnested/sub1/sub1', 0o400);
+  await setupDir('foo/permnested/sub1/sub2', 0o400);
+  await setupDir('foo/permnested/sub2/sub1', 0o400);
+  await setupDir('foo/permnested/sub2/sub2', 0o400);
+  await setupDir('foo/permnested/sub1', 0o400);
+  await setupDir('foo/permnested/sub2', 0o400);
+  await setupDir('foo/permnested', 0o400);
+  await del(['foo/permnested']);
+  await exists('foo/permnested', false);
+});
+
 const setupDir = async (p, mode) => {
   await mkdir(p + '/empty', mode);
   await mkdir(p + '/-', mode);
